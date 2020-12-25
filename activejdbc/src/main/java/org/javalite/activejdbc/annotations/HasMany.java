@@ -52,4 +52,5 @@ public @interface HasMany
      * Foreign key column name in child table.
      */
     String foreignKeyName();
+    String primaryKeyName() default "";
 }

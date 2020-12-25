@@ -422,6 +422,7 @@ public enum Registry {
         if(belongsToAnnotation != null){
             Class<? extends Model> parentClass = belongsToAnnotation.parent();
             String foreignKeyName = belongsToAnnotation.foreignKeyName();
+            String primaryKeyName = belongsToAnnotation.primaryKeyName();
 
             if (metaModels.getMetaModel(parentClass).hasAssociation(modelClass, OneToManyAssociation.class)) {
                 LogFilter.log(LOGGER, LogLevel.WARNING, "Redundant annotations used: @BelongsTo and @HasMany on a "
@@ -429,8 +430,8 @@ public enum Registry {
                 return;
             }
 
-            Association hasMany = new OneToManyAssociation(parentClass, modelClass, foreignKeyName);
-            Association belongsTo = new BelongsToAssociation(modelClass, parentClass, foreignKeyName);
+            Association hasMany = new OneToManyAssociation(parentClass, modelClass, foreignKeyName, primaryKeyName);
+            Association belongsTo = new BelongsToAssociation(modelClass, parentClass, foreignKeyName, primaryKeyName);
 
             metaModels.getMetaModel(parentClass).addAssociation(hasMany);
             metaModels.getMetaModel(modelClass).addAssociation(belongsTo);
@@ -442,6 +443,7 @@ public enum Registry {
         if(hasManyAnnotation != null){
             Class<? extends Model> childClass = hasManyAnnotation.child();
             String foreignKeyName = hasManyAnnotation.foreignKeyName();
+            String primaryKeyName = hasManyAnnotation.primaryKeyName();
 
             if (metaModels.getMetaModel(childClass).hasAssociation(modelClass, OneToManyAssociation.class)) {
                 LogFilter.log(LOGGER, LogLevel.WARNING, "Redundant annotations used: @BelongsTo and @HasMany on a "
@@ -449,8 +451,8 @@ public enum Registry {
                 return;
             }
 
-            Association hasMany = new OneToManyAssociation(modelClass, childClass, foreignKeyName);
-            Association belongsTo = new BelongsToAssociation(childClass, modelClass, foreignKeyName);
+            Association hasMany = new OneToManyAssociation(modelClass, childClass, foreignKeyName, primaryKeyName);
+            Association belongsTo = new BelongsToAssociation(childClass, modelClass, foreignKeyName, primaryKeyName);
 
             metaModels.getMetaModel(modelClass).addAssociation(hasMany);
             metaModels.getMetaModel(childClass).addAssociation(belongsTo);

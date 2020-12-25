@@ -21,17 +21,23 @@ import org.javalite.activejdbc.Model;
 
 import java.util.Map;
 
+import static org.javalite.activejdbc.ModelDelegate.metaModelOf;
+
 /**
  * @author Igor Polevoy
  */
 public class OneToManyAssociation extends Association {
 
     public static final String FK = "FK";
+    public static final String PK = "PK";
+
     private String fkName;
+    private String pkName;
 
     public OneToManyAssociation(Map<String, Object> map) throws ClassNotFoundException {
         super(map);
         fkName = (String) map.get(FK);
+        pkName = (String) map.get(PK);
     }
 
     /**
@@ -39,13 +45,22 @@ public class OneToManyAssociation extends Association {
      * @param targetModelClass target class - many targets belong to source.
      * @param fkName name of a foreign key in teh target table.
      */
-    public OneToManyAssociation(Class<? extends Model> sourceModelClass, Class<? extends Model> targetModelClass, String fkName) {
+    public OneToManyAssociation(Class<? extends Model> sourceModelClass, Class<? extends Model> targetModelClass, String fkName, String pkName) {
         super(sourceModelClass, targetModelClass);
         this.fkName = fkName;
+        this.pkName = (pkName == null || pkName.isEmpty()) ? metaModelOf(targetModelClass).getIdName() : pkName;
+    }
+
+    public OneToManyAssociation(Class<? extends Model> sourceModelClass, Class<? extends Model> targetModelClass, String fkName) {
+        this(sourceModelClass, targetModelClass, fkName, null);
     }
 
     public String getFkName() {
         return fkName;
+    }
+
+    public String getPkName() {
+        return pkName;
     }
 
     @Override
@@ -61,6 +76,7 @@ public class OneToManyAssociation extends Association {
         } else {
             OneToManyAssociation otherAss = (OneToManyAssociation) other;
             return otherAss.fkName.equals(fkName)
+                    && otherAss.pkName.equals(pkName)
                     && otherAss.getSourceClass().equals(getSourceClass())
                     && otherAss.getTargetClass().equals(getTargetClass());
         }
@@ -70,6 +86,7 @@ public class OneToManyAssociation extends Association {
     public Map<String, Object> toMap() {
         Map<String, Object> map = super.toMap();
         map.put(FK, fkName);
+        map.put(PK, pkName);
         return map;
     }
 

@@ -1163,9 +1163,12 @@ public abstract class Model extends CallbackSupport implements Externalizable, V
 
         Object fkValue;
         String fkName;
+        String parentIdName = null;
+
         if (ass != null) {
             fkValue = get(ass.getFkName());
             fkName = ass.getFkName();
+            parentIdName = ass.getPkName();
         } else if (assP != null) {
             fkValue = get("parent_id");
             fkName = "parent_id";
@@ -1184,7 +1187,9 @@ public abstract class Model extends CallbackSupport implements Externalizable, V
 
         MetaModel parentMM = metaModelOf(parentClass);
         String parentTable = parentMM.getTableName();
-        String parentIdName = parentMM.getIdName();
+        if (parentIdName == null) {
+            parentIdName = parentMM.getIdName();
+        }
         String query = metaModelLocal.getDialect().selectStarParametrized(parentTable, parentIdName);
 
         if (parentMM.cached()) {
@@ -1250,10 +1255,10 @@ public abstract class Model extends CallbackSupport implements Externalizable, V
         List<Association> associations = metaModelLocal.getAssociations();
         for (Association association : associations) {
             if (association instanceof BelongsToAssociation && association.getTargetClass().equals(parent.metaModelLocal.getModelClass())) {
-                set(((BelongsToAssociation)association).getFkName(), parent.getId());
+                set(((BelongsToAssociation)association).getFkName(), parent.get(((BelongsToAssociation)association).getPkName()));
                 return;
             }
-            if(association instanceof BelongsToPolymorphicAssociation && association.getTargetClass().equals(parent.metaModelLocal.getModelClass())){
+            if (association instanceof BelongsToPolymorphicAssociation && association.getTargetClass().equals(parent.metaModelLocal.getModelClass())){
                 set("parent_id", parent.getId());
                 set("parent_type", ((BelongsToPolymorphicAssociation)association).getTypeLabel());
                 return;
@@ -2483,7 +2488,7 @@ public abstract class Model extends CallbackSupport implements Externalizable, V
     private void addOne2ManyChild(MetaModel metaModel, Model child){
         OneToManyAssociation ass = metaModel.getAssociationForTarget(child.getClass(), OneToManyAssociation.class);
         String fkName = ass.getFkName();
-        child.set(fkName, getId());
+        child.set(fkName, get(ass.getPkName()));
         child.saveIt();//this will cause an exception in case validations fail.
     }
 

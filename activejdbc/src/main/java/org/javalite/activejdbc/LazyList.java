@@ -401,7 +401,7 @@ public class LazyList<T extends Model> extends AbstractLazyList<T> implements Ex
         appendQuestions(query, distinctParentIds.size());
         query.append(')');
         for (Model parent : new LazyList<>(query.toString(), parentMetaModel, distinctParentIds.toArray())) {
-            parentById.put(parent.getId(), parent);
+            parentById.put(parent.get(association.getPkName()), parent);
         }
         //now that we have the parents in the has, we need to distribute them into list of children that are
         //stored in the delegate.
@@ -508,7 +508,7 @@ public class LazyList<T extends Model> extends AbstractLazyList<T> implements Ex
         final MetaModel childMetaModel = metaModelOf(association.getTargetClass());
         final String fkName = association.getFkName();
         final Map<Object, List<Model>> childrenByParentId = new HashMap<>();
-        List<Object> ids = collect(metaModel.getIdName());
+        List<Object> ids = collect(association.getPkName());
         StringBuilder query = new StringBuilder().append(fkName).append(" IN (");
         appendQuestions(query, ids.size());
         query.append(')');

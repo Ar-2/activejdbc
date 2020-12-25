@@ -49,4 +49,5 @@ import java.lang.annotation.ElementType;
 public @interface BelongsTo {
     Class<? extends Model> parent();
     String foreignKeyName();
+    String primaryKeyName() default "";
 }
