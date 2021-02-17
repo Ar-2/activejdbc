@@ -1862,9 +1862,11 @@ public abstract class Model extends CallbackSupport implements Externalizable, V
         MetaModel targetMM = metaModelOf(targetModelClass);
         String targetTable = targetMM.getTableName();
 
+        Object id = this.getId();
 
         if (oneToManyAssociation != null) {
             subQuery = oneToManyAssociation.getFkName() + " = ? " + additionalCriteria;
+            id = this.get(oneToManyAssociation.getPkName());
         } else if (manyToManyAssociation != null) {
             String joinTable = manyToManyAssociation.getJoin();
             String query = "SELECT " + targetTable + ".* FROM " + targetTable + ", " + joinTable +
@@ -1882,7 +1884,7 @@ public abstract class Model extends CallbackSupport implements Externalizable, V
         }
 
         Object[] allParams = new Object[params.length + 1];
-        allParams[0] = getId();
+        allParams[0] = id;
         System.arraycopy(params, 0, allParams, 1, params.length);
         return new LazyList<>(subQuery, targetMM, allParams);
     }
